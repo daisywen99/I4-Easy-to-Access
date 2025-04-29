@@ -1,0 +1,93 @@
+'''
+README Instructions (included in code):
+- Python 3.7+
+- Install required libraries (only 'requests' and 'pandas'):
+    pip install requests pandas
+- Run the script directly:
+    python access_information_sources.py
+'''
+
+# --- Import libraries ---
+import requests
+import pandas as pd
+import sqlite3
+
+
+# --- Function 1: Access JSON via API ---
+def access_json_api():
+    """
+    Access Technology: API connection over HTTP.
+    Information Structure: JSON.
+
+    Pros:
+    - Easy, real-time access to fresh data.
+    - Standard format, lightweight.
+    Cons:
+    - Requires internet connection.
+    - API limits or failures can affect availability.
+    """
+    url = "https://jsonplaceholder.typicode.com/posts/1"  # Fake public API
+    response = requests.get(url)
+    data = response.json()
+    print("Sample JSON API data:")
+    print(data)
+
+
+# --- Function 2: Access CSV via Local File ---
+def access_csv_local():
+    """
+    Access Technology: Manual file download and read locally.
+    Information Structure: CSV.
+
+    Pros:
+    - Simple and fast for small to medium datasets.
+    - No internet needed after download.
+    Cons:
+    - Data can be outdated quickly.
+    - Requires manual updates if data changes.
+    """
+    # For demo: Create a local CSV file
+    sample_data = {'Name': ['Alice', 'Bob', 'Charlie'], 'Age': [25, 30, 35]}
+    df = pd.DataFrame(sample_data)
+    df.to_csv("sample.csv", index=False)
+
+    # Read the CSV file
+    df_read = pd.read_csv("sample.csv")
+    print("\nSample CSV local file data:")
+    print(df_read)
+
+
+# --- Function 3: Access Data via SQLite Database Connection ---
+def access_sqlite_db():
+    """
+    Access Technology: SQL database connection (local SQLite).
+    Information Structure: Table (structured data).
+
+    Pros:
+    - Good for large, relational data.
+    - Supports complex queries.
+    Cons:
+    - Requires database setup (even if lightweight).
+    - Slower for very large datasets compared to flat files.
+    """
+    # Create a local SQLite database and table
+    conn = sqlite3.connect('sample.db')
+    cursor = conn.cursor()
+    cursor.execute('CREATE TABLE IF NOT EXISTS people (id INTEGER PRIMARY KEY, name TEXT, age INTEGER)')
+    cursor.execute('INSERT INTO people (name, age) VALUES (?, ?)', ('David', 28))
+    cursor.execute('INSERT INTO people (name, age) VALUES (?, ?)', ('Ella', 22))
+    conn.commit()
+
+    # Query the database
+    df_sql = pd.read_sql_query("SELECT * FROM people", conn)
+    print("\nSample SQL database data:")
+    print(df_sql)
+
+    conn.close()
+
+
+# --- Main Execution ---
+if __name__ == "__main__":
+    access_json_api()
+    access_csv_local()
+    access_sqlite_db()
